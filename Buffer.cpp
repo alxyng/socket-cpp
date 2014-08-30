@@ -1,13 +1,17 @@
 #include "Buffer.h"
 
-#include <arpa/inet.h>
 #include <cstdint>
+#include <string>
 
 Buffer::Buffer(uint32_t size) {
   this->raw.reserve(size);
   this->raw.clear();
 
   this->position = 0;
+}
+
+void Buffer::writeInt8(int8_t value) {
+  this->append<int8_t>(value);
 }
 
 void Buffer::writeUInt8(uint8_t value) {
@@ -24,6 +28,17 @@ void Buffer::writeUInt16LE(uint16_t value) {
   if (Buffer::isMachineBigEndian())
     Buffer::swapByteOrder(&value, 2);
   this->append<uint16_t>(value);
+}
+
+// TODO: research std::string address contiguousy - new stanard forces
+//       memory to be contiguous but not sure if it is yet
+void Buffer::writeString(std::string str) {
+  for (std::string::iterator it = str.begin(); it != str.end(); it++)
+    this->append<int8_t>(*it);
+}
+
+int8_t Buffer::readInt8(uint32_t index) const {
+  return read<int8_t>(index);
 }
 
 uint8_t Buffer::readUInt8(uint32_t index) const {
@@ -47,3 +62,5 @@ uint16_t Buffer::readUInt16LE(uint32_t index) const {
 
   return value;
 }
+
+// TODO: defining custom operator functions e.g. << and >>

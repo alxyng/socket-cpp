@@ -1,7 +1,6 @@
 #ifndef BUFFER_H_
 #define BUFFER_H_
 
-#include <arpa/inet.h>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -50,18 +49,21 @@ class Buffer {
   public:
     Buffer(uint32_t size = Size::DEFAULT);
 
+    void writeInt8(int8_t value);
+    void writeInt8BE(int8_t value, uint32_t index);
     void writeUInt8(uint8_t value);
     void writeUInt8(uint8_t value, uint32_t index);
     void writeUInt16BE(uint16_t value);
     void writeUInt16BE(uint16_t value, uint32_t index);
     void writeUInt16LE(uint16_t value);
     void writeUInt16LE(uint16_t value, uint32_t index);
-    void writeString(std::string& str);
+    void writeString(std::string str);
     void writeString(std::string& str, uint32_t length);
     void writeString(std::string& str, uint32_t length, uint32_t index);
     void writeBuffer(Buffer& buffer);
     void writeBuffer(Buffer& buffer, uint32_t index);
 
+    int8_t readInt8(uint32_t index) const;
     uint8_t readUInt8(uint32_t index) const;
     uint16_t readUInt16BE(uint32_t index) const;
     uint16_t readUInt16LE(uint32_t index) const;

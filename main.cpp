@@ -7,9 +7,10 @@ using namespace std;
 int main() {
   Buffer buffer;
 
-  buffer.writeUInt16LE(2109);
+  buffer.writeUInt16BE(2109);
+  buffer.writeString("hello");
 
-  cout << buffer.readUInt16LE(0) << endl;
+  cout << buffer.readInt8(2) << endl;
 
   return 0;
 }
