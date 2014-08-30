@@ -71,6 +71,78 @@ uint16_t Buffer::readUInt16LE(uint32_t index) const {
   return value;
 }
 
+int32_t Buffer::readInt32BE(uint32_t index) const {
+  int32_t value = read<int32_t>(index);
+
+  if (!isMachineBigEndian())
+      swapByteOrder(&value, 4);
+
+  return value;
+}
+
+int32_t Buffer::readInt32LE(uint32_t index) const {
+  int32_t value = read<int32_t>(index);
+
+  if (isMachineBigEndian())
+      swapByteOrder(&value, 4);
+
+  return value;
+}
+
+uint32_t Buffer::readUInt32BE(uint32_t index) const {
+  uint32_t value = read<uint32_t>(index);
+
+  if (!isMachineBigEndian())
+      swapByteOrder(&value, 4);
+
+  return value;
+}
+
+uint32_t Buffer::readUInt32LE(uint32_t index) const {
+  uint32_t value = read<uint32_t>(index);
+
+  if (isMachineBigEndian())
+      swapByteOrder(&value, 4);
+
+  return value;
+}
+
+int64_t Buffer::readInt64BE(uint32_t index) const {
+  int64_t value = read<int64_t>(index);
+
+  if (!isMachineBigEndian())
+      swapByteOrder(&value, 8);
+
+  return value;
+}
+
+int64_t Buffer::readInt64LE(uint32_t index) const {
+  int64_t value = read<int64_t>(index);
+
+  if (isMachineBigEndian())
+      swapByteOrder(&value, 8);
+
+  return value;
+}
+
+uint64_t Buffer::readUInt64BE(uint32_t index) const {
+  uint64_t value = read<uint64_t>(index);
+
+  if (!isMachineBigEndian())
+      swapByteOrder(&value, 8);
+
+  return value;
+}
+
+uint64_t Buffer::readUInt64LE(uint32_t index) const {
+  uint64_t value = read<uint64_t>(index);
+
+  if (isMachineBigEndian())
+      swapByteOrder(&value, 8);
+
+  return value;
+}
+
 std::string Buffer::readString(uint32_t index, uint32_t length) const {
   std::string str;
 
