@@ -11,9 +11,7 @@ class Buffer {
     std::vector<uint8_t> raw;
     uint32_t position;
 
-    enum Size {
-      DEFAULT = 4096
-    };
+    static const uint32_t DEFAULT_SIZE = 4096;
 
     template <typename T> void append(T data) {
       if (position + sizeof (data) > this->getCapacity())
@@ -36,7 +34,8 @@ class Buffer {
     }
 
     // TODO: check endianness at compile time rather than runtime
-    bool isMachineBigEndian() const {
+    // TODO: make static
+    static bool isMachineBigEndian() {
       uint16_t i = 300;
       if ((*(uint8_t*)&i) != 44)
         return true;
@@ -44,15 +43,16 @@ class Buffer {
       return false;
     };
 
-    template <typename T> void swapByteOrder(T* data, uint32_t length) const {
-      if (length < 2)
+    // TODO: make static
+    template <typename T> static void swapByteOrder(T* data) {
+      if (sizeof (T) < 2)
         return;
 
       uint8_t* p = (uint8_t*)data;
 
-      for (uint32_t i = 0; i < (length / 2); i++) {
-        uint8_t temp = p[length - i - 1];
-        std::memcpy(&p[length - i - 1], &p[i], 1);
+      for (uint32_t i = 0; i < (sizeof (T) / 2); i++) {
+        uint8_t temp = p[sizeof (T) - i - 1];
+        std::memcpy(&p[sizeof (T) - i - 1], &p[i], 1);
         std::memcpy(&p[i], &temp, 1);
       }
     }
@@ -62,7 +62,7 @@ class Buffer {
     }
 
   public:
-    Buffer(uint32_t size = Size::DEFAULT);
+    Buffer(uint32_t size = DEFAULT_SIZE);
 
     void writeInt8(int8_t value);
     void writeInt8(int8_t value, uint32_t index);
@@ -93,6 +93,15 @@ class Buffer {
     void writeUInt64LE(uint64_t value);
     void writeUInt64LE(uint64_t value, uint32_t index);
 
+    void writeFloatBE(float value);
+    void writeFloatBE(float value, uint32_t index);
+    void writeFloatLE(float value);
+    void writeFloatLE(float value, uint32_t index);
+    void writeDoubleBE(double value);
+    void writeDoubleBE(double value, uint32_t index);
+    void writeDoubleLE(double value);
+    void writeDoubleLE(double value, uint32_t index);
+
     void writeString(std::string& str);
     void writeString(std::string& str, uint32_t length);
     void writeString(std::string& str, uint32_t length, uint32_t index);
@@ -113,6 +122,11 @@ class Buffer {
     int64_t readInt64LE(uint32_t index) const;
     uint64_t readUInt64BE(uint32_t index) const;
     uint64_t readUInt64LE(uint32_t index) const;
+
+    float readFloatBE(uint32_t index) const;
+    float readFloatLE(uint32_t index) const;
+    double readDoubleBE(uint32_t index) const;
+    double readDoubleLE(uint32_t index) const;
 
     std::string readString(uint32_t index, uint32_t length) const;
     Buffer readBuffer(uint32_t index, uint32_t length) const;
