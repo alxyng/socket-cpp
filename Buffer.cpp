@@ -26,10 +26,40 @@ void Buffer::writeUInt8(uint8_t value, uint32_t index) {
   this->insert<uint8_t>(value, index);
 }
 
+void Buffer::writeInt16BE(int16_t value) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 2);
+  this->append<int16_t>(value);
+}
+
+void Buffer::writeInt16BE(int16_t value, uint32_t index) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 2);
+  this->insert<int16_t>(value, index);
+}
+
+void Buffer::writeInt16LE(int16_t value) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 2);
+  this->append<int16_t>(value);
+}
+
+void Buffer::writeInt16LE(int16_t value, uint32_t index) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 2);
+  this->insert<int16_t>(value, index);
+}
+
 void Buffer::writeUInt16BE(uint16_t value) {
   if (!Buffer::isMachineBigEndian())
       Buffer::swapByteOrder(&value, 2);
   this->append<uint16_t>(value);
+}
+
+void Buffer::writeUInt16BE(uint16_t value, uint32_t index) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 2);
+  this->insert<uint16_t>(value, index);
 }
 
 void Buffer::writeUInt16LE(uint16_t value) {
@@ -38,8 +68,110 @@ void Buffer::writeUInt16LE(uint16_t value) {
   this->append<uint16_t>(value);
 }
 
-// TODO: research std::string address contiguousy - new stanard forces
-//       memory to be contiguous but not sure if it is yet
+void Buffer::writeUInt16LE(uint16_t value, uint32_t index) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 2);
+  this->insert<uint16_t>(value, index);
+}
+
+void Buffer::writeInt32BE(int32_t value) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 4);
+  this->append<int32_t>(value);
+}
+
+void Buffer::writeInt32BE(int32_t value, uint32_t index) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 4);
+  this->insert<int32_t>(value, index);
+}
+
+void Buffer::writeInt32LE(int32_t value) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 4);
+  this->append<int32_t>(value);
+}
+
+void Buffer::writeInt32LE(int32_t value, uint32_t index) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 4);
+  this->insert<int32_t>(value, index);
+}
+
+void Buffer::writeUInt32BE(uint32_t value) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 4);
+  this->append<uint32_t>(value);
+}
+
+void Buffer::writeUInt32BE(uint32_t value, uint32_t index) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 4);
+  this->insert<uint32_t>(value, index);
+}
+
+void Buffer::writeUInt32LE(uint32_t value) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 4);
+  this->append<uint32_t>(value);
+}
+
+void Buffer::writeUInt32LE(uint32_t value, uint32_t index) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 4);
+  this->insert<uint32_t>(value, index);
+}
+
+void Buffer::writeInt64BE(int64_t value) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 8);
+  this->append<int64_t>(value);
+}
+
+void Buffer::writeInt64BE(int64_t value, uint32_t index) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 8);
+  this->insert<int64_t>(value, index);
+}
+
+void Buffer::writeInt64LE(int64_t value) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 8);
+  this->append<int64_t>(value);
+}
+
+void Buffer::writeInt64LE(int64_t value, uint32_t index) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 8);
+  this->insert<int64_t>(value, index);
+}
+
+void Buffer::writeUInt64BE(uint64_t value) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 8);
+  this->append<uint64_t>(value);
+}
+
+void Buffer::writeUInt64BE(uint64_t value, uint32_t index) {
+  if (!Buffer::isMachineBigEndian())
+      Buffer::swapByteOrder(&value, 8);
+  this->insert<uint64_t>(value, index);
+}
+
+void Buffer::writeUInt64LE(uint64_t value) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 8);
+  this->append<uint64_t>(value);
+}
+
+void Buffer::writeUInt64LE(uint64_t value, uint32_t index) {
+  if (Buffer::isMachineBigEndian())
+    Buffer::swapByteOrder(&value, 8);
+  this->insert<uint64_t>(value, index);
+}
+
+// TODO: research std::string address contiguousy - new standard apparently
+//       forces std::string memory to be contiguous but not sure if it is yet
 void Buffer::writeString(std::string& str) {
   for (std::string::iterator it = str.begin(); it != str.end(); it++)
     this->append<int8_t>(*it);

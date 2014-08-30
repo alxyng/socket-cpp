@@ -7,17 +7,9 @@ using namespace std;
 int main() {
   Buffer buffer;
 
-  buffer.writeUInt16BE(2109);
+  buffer.writeUInt32BE(123);
 
-  std::string str = "bonjour";
-
-  buffer.writeString(str);
-
-  cout << buffer.readInt8(5) << endl;
-
-  buffer.writeInt8('e', 5);
-
-  cout << buffer.readString(2, 4) << endl;
+  cout << buffer.readInt8(3) << endl;
 
   return 0;
 }
