@@ -14,8 +14,16 @@ void Buffer::writeInt8(int8_t value) {
   this->append<int8_t>(value);
 }
 
+void Buffer::writeInt8(int8_t value, uint32_t index) {
+  this->insert<int8_t>(value, index);
+}
+
 void Buffer::writeUInt8(uint8_t value) {
   this->append<uint8_t>(value);
+}
+
+void Buffer::writeUInt8(uint8_t value, uint32_t index) {
+  this->insert<uint8_t>(value, index);
 }
 
 void Buffer::writeUInt16BE(uint16_t value) {
@@ -32,7 +40,7 @@ void Buffer::writeUInt16LE(uint16_t value) {
 
 // TODO: research std::string address contiguousy - new stanard forces
 //       memory to be contiguous but not sure if it is yet
-void Buffer::writeString(std::string str) {
+void Buffer::writeString(std::string& str) {
   for (std::string::iterator it = str.begin(); it != str.end(); it++)
     this->append<int8_t>(*it);
 }
@@ -63,4 +71,13 @@ uint16_t Buffer::readUInt16LE(uint32_t index) const {
   return value;
 }
 
-// TODO: defining custom operator functions e.g. << and >>
+std::string Buffer::readString(uint32_t index, uint32_t length) const {
+  std::string str;
+
+  for (uint32_t i = index; i < index + length; i++)
+    str += readInt8(i);
+
+  return str;
+}
+
+// TODO: defining custom operator functions e.g. << and >> for serialization
