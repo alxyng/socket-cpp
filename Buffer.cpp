@@ -4,11 +4,19 @@
 #include <cstring>
 #include <string>
 
+#include <iostream>
+
 Buffer::Buffer(uint32_t size) {
   this->raw.reserve(size);
   this->raw.clear();
 
   this->position = 0;
+}
+
+Buffer::Buffer(const void* const data, uint32_t size) : Buffer(DEFAULT_SIZE) {
+  if (size > DEFAULT_SIZE)
+    this->resize(size);
+  this->writeBytes(data, size);
 }
 
 void Buffer::writeInt8(int8_t value) {
@@ -231,7 +239,7 @@ void Buffer::writeString(std::string& str, uint32_t index) {
     this->insert<int8_t>(*it, index + std::distance(str.begin(), it));
 }
 
-void Buffer::writeBytes(const void* data, uint32_t length) {
+void Buffer::writeBytes(const void* const data, uint32_t length) {
   std::memcpy(&this->raw[this->position], (uint8_t*)data, length);
   this->position += length;
 }

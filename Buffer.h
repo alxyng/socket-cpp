@@ -61,6 +61,7 @@ class Buffer {
 
   public:
     Buffer(uint32_t size = DEFAULT_SIZE);
+    Buffer(const void* const data, uint32_t size);
 
     void writeInt8(int8_t value);
     void writeInt8(int8_t value, uint32_t index);

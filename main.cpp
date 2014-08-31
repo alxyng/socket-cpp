@@ -32,5 +32,9 @@ int main() {
 
   delete [] juicebox;
 
+  Buffer b2(str, 4);
+
+  cout << b2.readString(0, 4) << endl;
+
   return 0;
 }
