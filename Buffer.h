@@ -34,7 +34,6 @@ class Buffer {
     }
 
     // TODO: check endianness at compile time rather than runtime
-    // TODO: make static
     static bool isMachineBigEndian() {
       uint16_t i = 300;
       if ((*(uint8_t*)&i) != 44)
@@ -43,7 +42,6 @@ class Buffer {
       return false;
     };
 
-    // TODO: make static
     template <typename T> static void swapByteOrder(T* data) {
       if (sizeof (T) < 2)
         return;
@@ -103,10 +101,12 @@ class Buffer {
     void writeDoubleLE(double value, uint32_t index);
 
     void writeString(std::string& str);
-    void writeString(std::string& str, uint32_t length);
-    void writeString(std::string& str, uint32_t length, uint32_t index);
+    void writeString(std::string& str, uint32_t index);
     void writeBuffer(Buffer& buffer);
     void writeBuffer(Buffer& buffer, uint32_t index);
+
+    void writeBytes(const void* data, uint32_t length);
+    void writeBytes(const void* data, uint32_t length, uint32_t index);
 
     int8_t readInt8(uint32_t index) const;
     uint8_t readUInt8(uint32_t index) const;
@@ -131,11 +131,12 @@ class Buffer {
     std::string readString(uint32_t index, uint32_t length) const;
     Buffer readBuffer(uint32_t index, uint32_t length) const;
 
+    void readBytes(void* buffer, uint32_t length, uint32_t index) const;
+
     uint32_t getPosition() const {
       return this->position;
     };
 
-    // purpose of if can change dynamically?
     uint32_t getCapacity() const {
       return this->raw.capacity();
     };

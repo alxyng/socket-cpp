@@ -1,6 +1,7 @@
 #include "Buffer.h"
 
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 Buffer::Buffer(uint32_t size) {
@@ -225,6 +226,21 @@ void Buffer::writeString(std::string& str) {
     this->append<int8_t>(*it);
 }
 
+void Buffer::writeString(std::string& str, uint32_t index) {
+  for (std::string::iterator it = str.begin(); it != str.end(); it++)
+    this->insert<int8_t>(*it, index + std::distance(str.begin(), it));
+}
+
+void Buffer::writeBytes(const void* data, uint32_t length) {
+  std::memcpy(&this->raw[this->position], (uint8_t*)data, length);
+  this->position += length;
+}
+
+void Buffer::writeBytes(const void* data, uint32_t length, uint32_t index) {
+  std::memcpy(&this->raw[index], (uint8_t*)data, length);
+  this->position += length;
+}
+
 int8_t Buffer::readInt8(uint32_t index) const {
   return read<int8_t>(index);
 }
@@ -348,6 +364,10 @@ std::string Buffer::readString(uint32_t index, uint32_t length) const {
     str += readInt8(i);
 
   return str;
+}
+
+void Buffer::readBytes(void* buffer, uint32_t length, uint32_t index) const {
+  std::memcpy(buffer, &this->raw[index], length);
 }
 
 // TODO: defining custom operator functions e.g. << and >> for serialization

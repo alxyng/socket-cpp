@@ -7,9 +7,30 @@ using namespace std;
 int main() {
   Buffer buffer;
 
-  buffer.writeUInt32BE(123);
+  const char* str = "hello there sir";
 
-  cout << buffer.readInt8(3) << endl;
+  string s = "why ";
+
+  buffer.writeString(s);
+
+  buffer.writeBytes(str, strlen(str), 100);
+
+  cout << buffer.readString(106, 15) << endl;
+
+  string s2 = "what the jefferson is that";
+
+  buffer.writeString(s2, 37);
+
+  buffer.writeInt32BE(1234567890);
+
+  char* juicebox = new char[10];
+  juicebox[9] = '\0';
+
+  buffer.readBytes(juicebox, 9, 46);
+
+  cout << "My name is " << juicebox << "!" << endl;
+
+  delete [] juicebox;
 
   return 0;
 }
