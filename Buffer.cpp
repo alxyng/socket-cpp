@@ -9,8 +9,7 @@
 Buffer::Buffer(uint32_t size) {
   this->raw.reserve(size);
   this->raw.clear();
-
-  this->position = 0;
+  this->size = 0;
 }
 
 Buffer::Buffer(const void* const data, uint32_t size) : Buffer(DEFAULT_SIZE) {
@@ -240,13 +239,19 @@ void Buffer::writeString(std::string& str, uint32_t index) {
 }
 
 void Buffer::writeBytes(const void* const data, uint32_t length) {
-  std::memcpy(&this->raw[this->position], (uint8_t*)data, length);
-  this->position += length;
+  if (this->size + sizeof (data) > this->getCapacity())
+    this->resize(this->size + sizeof (data));
+
+  std::memcpy(&this->raw[this->size], (uint8_t*)data, length);
+  this->size += length;
 }
 
 void Buffer::writeBytes(const void* data, uint32_t length, uint32_t index) {
+  if (index + length > this->getCapacity())
+    this->resize(index + length);
+
   std::memcpy(&this->raw[index], (uint8_t*)data, length);
-  this->position += length;
+  this->size += length;
 }
 
 int8_t Buffer::readInt8(uint32_t index) const {

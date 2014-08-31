@@ -9,24 +9,24 @@
 class Buffer {
   private:
     std::vector<uint8_t> raw;
-    uint32_t position;
+    uint32_t size;
 
     static const uint32_t DEFAULT_SIZE = 4096;
 
     template <typename T> void append(T data) {
-      if (position + sizeof (data) > this->getCapacity())
-        this->resize(position + sizeof (data));
+      if (this->size + sizeof (data) > this->getCapacity())
+        this->resize(this->size + sizeof (data));
 
-      std::memcpy(&raw[this->position], (uint8_t*)&data, sizeof (data));
-      this->position += sizeof (data);
+      std::memcpy(&raw[this->size], (uint8_t*)&data, sizeof (data));
+      this->size += sizeof (data);
     }
 
     template <typename T> void insert(T data, uint32_t index) {
-      if (position + sizeof (data) > this->getCapacity())
-        this->resize(position + sizeof (data));
+      if (index + sizeof (data) > this->getCapacity())
+        this->resize(index + sizeof (data));
 
       std::memcpy(&raw[index], (uint8_t*)&data, sizeof (data));
-      this->position = index + sizeof (data);
+      this->size = index + sizeof (data);
     }
 
     template <typename T> T read(uint32_t index) const {
@@ -134,8 +134,8 @@ class Buffer {
 
     void readBytes(void* buffer, uint32_t length, uint32_t index) const;
 
-    uint32_t getPosition() const {
-      return this->position;
+    uint32_t getSize() const {
+      return this->size;
     };
 
     uint32_t getCapacity() const {
