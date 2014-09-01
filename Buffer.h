@@ -105,9 +105,11 @@ class Buffer {
     void writeString(std::string& str, uint32_t index);
     void writeBuffer(Buffer& buffer);
     void writeBuffer(Buffer& buffer, uint32_t index);
-
     void writeBytes(const void* data, uint32_t length);
     void writeBytes(const void* data, uint32_t length, uint32_t index);
+
+    void erase(uint32_t length);
+    void erase(uint32_t index, uint32_t length);
 
     int8_t readInt8(uint32_t index) const;
     uint8_t readUInt8(uint32_t index) const;
@@ -131,7 +133,6 @@ class Buffer {
 
     std::string readString(uint32_t index, uint32_t length) const;
     Buffer readBuffer(uint32_t index, uint32_t length) const;
-
     void readBytes(void* buffer, uint32_t length, uint32_t index) const;
 
     uint32_t getSize() const {

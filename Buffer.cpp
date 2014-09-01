@@ -238,6 +238,14 @@ void Buffer::writeString(std::string& str, uint32_t index) {
     this->insert<int8_t>(*it, index + std::distance(str.begin(), it));
 }
 
+void Buffer::writeBuffer(Buffer& buffer) {
+  this->writeBytes(&buffer.raw[0], buffer.getSize());
+}
+
+void Buffer::writeBuffer(Buffer& buffer, uint32_t index) {
+  this->writeBytes(&buffer.raw[0], buffer.getSize(), index);
+}
+
 void Buffer::writeBytes(const void* const data, uint32_t length) {
   if (this->size + sizeof (data) > this->getCapacity())
     this->resize(this->size + sizeof (data));
@@ -252,6 +260,31 @@ void Buffer::writeBytes(const void* data, uint32_t length, uint32_t index) {
 
   std::memcpy(&this->raw[index], (uint8_t*)data, length);
   this->size += length;
+}
+
+// length 15
+// erase 6 - length should be 9
+
+
+void Buffer::erase(uint32_t length) {
+  this->size -= length;
+  uint8_t* data = new uint8_t[length];
+  std::memcpy(data, &this->raw[length], this->size);
+  this->resize(this->size);
+  std::memcpy(&this->raw[0], data, this->size);
+  delete [] data;
+}
+
+void Buffer::erase(uint32_t index, uint32_t length) {
+  //uint8_t* data = new uint8_t[this->size - length]; // data for new buffer
+  //Buffer buffer;
+
+  //this->size -= length;
+  //this->resize(this->size);
+
+  //buffer.writeBytes(&this->raw[0], )
+
+  // make new buffer from this data? allow removal from the middle and what not
 }
 
 int8_t Buffer::readInt8(uint32_t index) const {
@@ -377,6 +410,10 @@ std::string Buffer::readString(uint32_t index, uint32_t length) const {
     str += readInt8(i);
 
   return str;
+}
+
+Buffer Buffer::readBuffer(uint32_t index, uint32_t length) const {
+
 }
 
 void Buffer::readBytes(void* buffer, uint32_t length, uint32_t index) const {
