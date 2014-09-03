@@ -59,14 +59,12 @@ void Buffer::resize(uint32_t capacity) {
     clear(oldCapacity);
 }
 
-0 1 2 3 4
-
 // maintains size but clears memory
 void Buffer::clear(uint32_t index) {
   if (index < this->capacity)
     std::memset(&this->raw[index], 0, this->capacity - index);
 
-  this->size = (this->size < index) ? this-size : index;
+  this->size = (this->size < index) ? this->size : index;
 }
 
 // reduces size (still sticks to blocks) - might not change capacity
