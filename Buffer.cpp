@@ -70,11 +70,14 @@ void Buffer::erase(uint32_t length) {
   if (length < 1)
     return;
 
+  this->capacity = this->getBlockCapacity(this->size);
+
   this->size -= length;
-  uint8_t* data = new uint8_t[this->getBlockCapacity(this->size)];
+  uint8_t* data = new uint8_t[this->capacity];
   std::memcpy(data, &this->raw[length], this->size);
   delete this->raw;
   this->raw = data;
+  clear(this->size);
 
   // call resize at the end with new size :)
 }
@@ -85,12 +88,15 @@ void Buffer::erase(uint32_t index, uint32_t length) {
     return;
   }
 
+  this->capacity = this->getBlockCapacity(this->size);
+
   this->size -= length;
-  uint8_t* data = new uint8_t[this->getBlockCapacity(this->size)];
+  uint8_t* data = new uint8_t[this->capacity];
   std::memcpy(data, this->raw, index);
   std::memcpy(&data[index], &this->raw[index + length], this->size - index);
   delete this->raw;
   this->raw = data;
+  clear(this->size);
 }
 
 void Buffer::writeInt8(int8_t value) {
@@ -308,9 +314,19 @@ void Buffer::writeString(std::string& str) {
     this->append<int8_t>(*it);
 }
 
+void Buffer::writeString(const char* const str) {
+  for (int i = 0; str[i] != '\0'; i++)
+    this->append<int8_t>(str[i]);
+}
+
 void Buffer::writeString(std::string& str, uint32_t index) {
   for (std::string::iterator it = str.begin(); it != str.end(); it++)
     this->insert<int8_t>(*it, index + std::distance(str.begin(), it));
+}
+
+void Buffer::writeString(const char* const str, uint32_t index) {
+  for (int i = 0; str[i] != '\0'; i++)
+    this->insert<int8_t>(str[i], index + i);
 }
 
 void Buffer::writeBytes(const void* const data, uint32_t length) {

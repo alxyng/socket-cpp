@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include <vector>
 
 class Buffer {
   private:
@@ -109,9 +108,9 @@ class Buffer {
     void writeDoubleLE(double value, uint32_t index);
 
     void writeString(std::string& str);
-    //void writeString(const char* const str); // dont include null character
+    void writeString(const char* const str);
     void writeString(std::string& str, uint32_t index);
-    //void writeString(const char* const str, uint32_t index);
+    void writeString(const char* const str, uint32_t index);
     void writeBytes(const void* data, uint32_t length);
     void writeBytes(const void* data, uint32_t length, uint32_t index);
     void writeBuffer(Buffer& buffer);

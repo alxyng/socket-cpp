@@ -31,10 +31,8 @@ int main() {
   b3.writeBuffer(b4);
   cout << b3.readString(0, s2.size() + s3.size()) << endl;
   */
-  string str = "hello world";
-
   cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
-  buffer.writeString(str);
+  buffer.writeString("hello world");
 
   cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
   cout << buffer.readString(0, 11) << endl;
