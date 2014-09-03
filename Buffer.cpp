@@ -44,6 +44,9 @@ void Buffer::resize(uint32_t capacity) {
     return;
   }
 
+  if (this->size > capacity)
+    this->size = capacity;
+
   uint8_t* data = new uint8_t[capacity];
   std::memcpy(data, this->raw, this->size);
   delete this->raw;
@@ -54,9 +57,6 @@ void Buffer::resize(uint32_t capacity) {
 
   if (oldCapacity < this->capacity)
     clear(oldCapacity);
-
-  if (this->size > this->capacity)
-    this->size = this->capacity;
 }
 
 // maintains size but clears memory

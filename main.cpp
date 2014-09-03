@@ -41,5 +41,10 @@ int main() {
   cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
   cout << buffer.readString(0, 11) << endl;
 
+  buffer.resize(5000);
+
+  cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
+  cout << buffer.readString(0, 11) << endl;
+
   return 0;
 }
