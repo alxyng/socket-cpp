@@ -4,18 +4,93 @@
 #include <cstring>
 #include <string>
 
-#include <iostream>
-
-Buffer::Buffer(uint32_t size) {
-  this->raw.reserve(size);
-  this->raw.clear();
-  this->size = 0;
+Buffer::Buffer(uint32_t capacity) { // size in bytes
+  this->construct(capacity);
 }
 
-Buffer::Buffer(const void* const data, uint32_t size) : Buffer(DEFAULT_SIZE) {
-  if (size > DEFAULT_SIZE)
-    this->resize(size);
+Buffer::Buffer(const void* const data, uint32_t size) {
+  this->construct(size);
   this->writeBytes(data, size);
+}
+
+Buffer::~Buffer() {
+  delete this->raw;
+}
+
+void Buffer::construct(uint32_t capacity) {
+  this->raw = NULL;
+  this->capacity = 0;
+  this->size = 0;
+
+  this->resize(capacity);
+  this->clear();
+}
+
+uint32_t Buffer::getBlockCapacity(uint32_t capacity) {
+  return ((uint32_t)((capacity + BLOCK_SIZE - 1.0) / BLOCK_SIZE)) * BLOCK_SIZE;
+}
+
+// needs to preserve data and add cleared data (works in blocks)
+void Buffer::resize(uint32_t capacity) {
+  capacity = this->getBlockCapacity(capacity);
+
+  if (capacity == this->capacity)
+    return;
+
+  if (this->capacity == 0 || this->size == 0) {
+    delete this->raw;
+    this->raw = new uint8_t[capacity];
+    this->capacity = capacity;
+    return;
+  }
+
+  uint8_t* data = new uint8_t[capacity];
+  std::memcpy(data, this->raw, this->size);
+  delete this->raw;
+  this->raw = data;
+
+  uint32_t oldCapacity = this->capacity;
+  this->capacity = capacity;
+
+  if (oldCapacity < this->capacity)
+    clear(oldCapacity);
+
+  if (this->size > this->capacity)
+    this->size = this->capacity;
+}
+
+// maintains size but clears memory
+void Buffer::clear(uint32_t index) {
+  if (index < this->capacity)
+    std::memset(&this->raw[index], 0, this->capacity - index);
+}
+
+// reduces size (still sticks to blocks) - might not change capacity
+void Buffer::erase(uint32_t length) {
+  if (length < 1)
+    return;
+
+  this->size -= length;
+  uint8_t* data = new uint8_t[this->getBlockCapacity(this->size)];
+  std::memcpy(data, &this->raw[length], this->size);
+  delete this->raw;
+  this->raw = data;
+
+  // call resize at the end with new size :)
+}
+
+void Buffer::erase(uint32_t index, uint32_t length) {
+  if (index < 1) {
+    this->erase(length);
+    return;
+  }
+
+  this->size -= length;
+  uint8_t* data = new uint8_t[this->getBlockCapacity(this->size)];
+  std::memcpy(data, this->raw, index);
+  std::memcpy(&data[index], &this->raw[index + length], this->size - index);
+  delete this->raw;
+  this->raw = data;
 }
 
 void Buffer::writeInt8(int8_t value) {
@@ -238,16 +313,8 @@ void Buffer::writeString(std::string& str, uint32_t index) {
     this->insert<int8_t>(*it, index + std::distance(str.begin(), it));
 }
 
-void Buffer::writeBuffer(Buffer& buffer) {
-  this->writeBytes(&buffer.raw[0], buffer.getSize());
-}
-
-void Buffer::writeBuffer(Buffer& buffer, uint32_t index) {
-  this->writeBytes(&buffer.raw[0], buffer.getSize(), index);
-}
-
 void Buffer::writeBytes(const void* const data, uint32_t length) {
-  if (this->size + sizeof (data) > this->getCapacity())
+  if (this->size + sizeof (data) > this->capacity)
     this->resize(this->size + sizeof (data));
 
   std::memcpy(&this->raw[this->size], (uint8_t*)data, length);
@@ -255,36 +322,19 @@ void Buffer::writeBytes(const void* const data, uint32_t length) {
 }
 
 void Buffer::writeBytes(const void* data, uint32_t length, uint32_t index) {
-  if (index + length > this->getCapacity())
+  if (index + length > this->capacity)
     this->resize(index + length);
 
   std::memcpy(&this->raw[index], (uint8_t*)data, length);
   this->size += length;
 }
 
-// length 15
-// erase 6 - length should be 9
-
-
-void Buffer::erase(uint32_t length) {
-  this->size -= length;
-  uint8_t* data = new uint8_t[length];
-  std::memcpy(data, &this->raw[length], this->size);
-  this->resize(this->size);
-  std::memcpy(&this->raw[0], data, this->size);
-  delete [] data;
+void Buffer::writeBuffer(Buffer& buffer) {
+  this->writeBytes(buffer.raw, buffer.getSize());
 }
 
-void Buffer::erase(uint32_t index, uint32_t length) {
-  //uint8_t* data = new uint8_t[this->size - length]; // data for new buffer
-  //Buffer buffer;
-
-  //this->size -= length;
-  //this->resize(this->size);
-
-  //buffer.writeBytes(&this->raw[0], )
-
-  // make new buffer from this data? allow removal from the middle and what not
+void Buffer::writeBuffer(Buffer& buffer, uint32_t index) {
+  this->writeBytes(buffer.raw, buffer.getSize(), index);
 }
 
 int8_t Buffer::readInt8(uint32_t index) const {

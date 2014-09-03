@@ -1,6 +1,8 @@
 #ifndef BUFFER_H_
 #define BUFFER_H_
 
+// TODO: bounds check maybe
+
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -8,13 +10,16 @@
 
 class Buffer {
   private:
-    std::vector<uint8_t> raw;
-    uint32_t size;
+    uint8_t* raw;
+    static const uint32_t BLOCK_SIZE = 4096;
+    uint32_t size; // amount of data in buffer so far (different to capacity)
+    uint32_t capacity; // capacity (increases in BLOCK_SIZE bytes)
 
-    static const uint32_t DEFAULT_SIZE = 4096;
+    void construct(uint32_t capacity);
+    uint32_t getBlockCapacity(uint32_t capacity);
 
     template <typename T> void append(T data) {
-      if (this->size + sizeof (data) > this->getCapacity())
+      if (this->size + sizeof (data) > this->capacity)
         this->resize(this->size + sizeof (data));
 
       std::memcpy(&raw[this->size], (uint8_t*)&data, sizeof (data));
@@ -22,7 +27,7 @@ class Buffer {
     }
 
     template <typename T> void insert(T data, uint32_t index) {
-      if (index + sizeof (data) > this->getCapacity())
+      if (index + sizeof (data) > this->capacity)
         this->resize(index + sizeof (data));
 
       std::memcpy(&raw[index], (uint8_t*)&data, sizeof (data));
@@ -55,13 +60,15 @@ class Buffer {
       }
     }
 
-    void resize(uint32_t size) {
-      this->raw.resize(size);
-    }
-
   public:
-    Buffer(uint32_t size = DEFAULT_SIZE);
+    Buffer(uint32_t size = BLOCK_SIZE);
     Buffer(const void* const data, uint32_t size);
+    ~Buffer();
+
+    void resize(uint32_t size);
+    void clear(uint32_t index = 0);
+    void erase(uint32_t length);
+    void erase(uint32_t index, uint32_t length);
 
     void writeInt8(int8_t value);
     void writeInt8(int8_t value, uint32_t index);
@@ -102,14 +109,13 @@ class Buffer {
     void writeDoubleLE(double value, uint32_t index);
 
     void writeString(std::string& str);
+    //void writeString(const char* const str); // dont include null character
     void writeString(std::string& str, uint32_t index);
-    void writeBuffer(Buffer& buffer);
-    void writeBuffer(Buffer& buffer, uint32_t index);
+    //void writeString(const char* const str, uint32_t index);
     void writeBytes(const void* data, uint32_t length);
     void writeBytes(const void* data, uint32_t length, uint32_t index);
-
-    void erase(uint32_t length);
-    void erase(uint32_t index, uint32_t length);
+    void writeBuffer(Buffer& buffer);
+    void writeBuffer(Buffer& buffer, uint32_t index);
 
     int8_t readInt8(uint32_t index) const;
     uint8_t readUInt8(uint32_t index) const;
@@ -132,15 +138,15 @@ class Buffer {
     double readDoubleLE(uint32_t index) const;
 
     std::string readString(uint32_t index, uint32_t length) const;
-    Buffer readBuffer(uint32_t index, uint32_t length) const;
     void readBytes(void* buffer, uint32_t length, uint32_t index) const;
+    Buffer readBuffer(uint32_t index, uint32_t length) const;
 
     uint32_t getSize() const {
       return this->size;
     };
 
     uint32_t getCapacity() const {
-      return this->raw.capacity();
+      return this->capacity;
     };
 };
 

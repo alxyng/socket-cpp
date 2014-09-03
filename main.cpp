@@ -31,14 +31,17 @@ int main() {
   b3.writeBuffer(b4);
   cout << b3.readString(0, s2.size() + s3.size()) << endl;
   */
+  string str = "hello world";
 
-  string test = "hello there you";
-  buffer.writeString(test);
-  cout << buffer.readString(0, 15) << endl;
+  cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
+  buffer.writeString(str);
 
-  buffer.erase(1); // erase the first 6 bytes
+  cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
+  cout << buffer.readString(0, 11) << endl;
+  buffer.erase(1);
 
-  cout << buffer.readString(0, buffer.getSize()) << endl;
+  cout << buffer.getSize() << ", " << buffer.getCapacity() << endl;
+  cout << buffer.readString(0, 11) << endl;
 
   return 0;
 }
