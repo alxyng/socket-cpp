@@ -13,6 +13,11 @@ Buffer::Buffer(const void* const data, uint32_t size) {
   this->writeBytes(data, size);
 }
 
+Buffer::Buffer(const void* const data, uint32_t size, uint32_t index) {
+  this->construct(size);
+  this->writeBytes(data, size, index);
+}
+
 Buffer::~Buffer() {
   delete this->raw;
 }
@@ -72,16 +77,14 @@ void Buffer::erase(uint32_t length) {
   if (length < 1)
     return;
 
+  this->size -= length;
   this->capacity = this->getBlockCapacity(this->size);
 
-  this->size -= length;
   uint8_t* data = new uint8_t[this->capacity];
   std::memcpy(data, &this->raw[length], this->size);
   delete this->raw;
   this->raw = data;
   clear(this->size);
-
-  // call resize at the end with new size :)
 }
 
 void Buffer::erase(uint32_t index, uint32_t length) {
@@ -90,9 +93,9 @@ void Buffer::erase(uint32_t index, uint32_t length) {
     return;
   }
 
+  this->size -= length;
   this->capacity = this->getBlockCapacity(this->size);
 
-  this->size -= length;
   uint8_t* data = new uint8_t[this->capacity];
   std::memcpy(data, this->raw, index);
   std::memcpy(&data[index], &this->raw[index + length], this->size - index);

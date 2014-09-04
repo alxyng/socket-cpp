@@ -62,6 +62,7 @@ class Buffer {
   public:
     Buffer(uint32_t size = BLOCK_SIZE);
     Buffer(const void* const data, uint32_t size);
+    Buffer(const void* const data, uint32_t size, uint32_t index);
     ~Buffer();
 
     void resize(uint32_t size);
@@ -137,7 +138,7 @@ class Buffer {
     double readDoubleLE(uint32_t index) const;
 
     std::string readString(uint32_t index, uint32_t length) const;
-    void readBytes(void* buffer, uint32_t length, uint32_t index) const;
+    void readBytes(void* buffer, uint32_t length, uint32_t index = 0) const;
     Buffer readBuffer(uint32_t index, uint32_t length) const;
 
     uint32_t getSize() const {
