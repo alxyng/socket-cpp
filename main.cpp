@@ -1,18 +1,27 @@
 #include <iostream>
+#include <fstream>
 
 #include "Buffer.h"
 
 using namespace std;
 
 int main() {
-  Buffer buffer;
+  ifstream s("example.dat", ios::binary);
+  if (s) {
+    s.seekg(0, s.end);
+    int length = s.tellg();
+    cout << length << endl;
+    s.seekg(0, s.beg);
 
-  buffer.writeString("example string");
+    char* data = new char[length];
+    s.read(data, length);
 
-  uint8_t* data = new uint8_t[4];
-  buffer.readBytes(data, 1);
+    Buffer b(data, length);
 
-  Buffer b2(data, 4);
+    cout << (uint32_t)b.readUInt8(3) << endl;
+  } else {
+    cout << "Couldn't open file" << endl;
+  }
 
-  cout << b2.readUInt32LE(0) << endl;
+  return 0;
 }
