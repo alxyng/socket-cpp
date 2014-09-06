@@ -1,7 +1,7 @@
 Buffer
 ======
 
-A cross platform C++ Buffer class designed for sending data over a network
+A cross platform buffer class (written in C++) designed for sending data over the network
 
 Build
 -----
