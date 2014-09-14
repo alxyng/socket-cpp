@@ -4,6 +4,8 @@
 #include <cstring>
 #include <string>
 
+#include <iostream> // debug
+
 Buffer::Buffer(uint32_t capacity) { // size in bytes
   this->construct(capacity);
 }
@@ -484,7 +486,11 @@ std::string Buffer::readString(uint32_t index, uint32_t length) const {
 }
 
 Buffer Buffer::readBuffer(uint32_t index, uint32_t length) const {
-
+  uint8_t* data = new uint8_t[length];
+  this->readBytes(data, length, index);
+  Buffer buffer(data, length);
+  delete [] data;
+  return buffer;
 }
 
 void Buffer::readBytes(void* buffer, uint32_t length, uint32_t index) const {
