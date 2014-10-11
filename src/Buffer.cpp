@@ -1,6 +1,7 @@
-#include "Buffer.h"
+#include "Buffer.hpp"
 
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
@@ -36,27 +37,31 @@ bool Buffer::resize(uint32_t capacity) {
     capacity = this->getBlockCapacity(capacity);
 
     if (capacity == this->capacity)
-		return true;
+        return true;
 
     uint32_t old_capacity = this->capacity;
 
     uint8_t* raw = (uint8_t*)std::realloc(this->raw, capacity);
-	if (raw == NULL)
-		return false;
+    if (raw == NULL)
+        return false;
 
-	this->raw = raw;
-	this->capacity = capacity;
+    this->raw = raw;
+    this->capacity = capacity;
 
-	if (this->capacity > old_capacity)
-		this->clear(old_capacity);
+    if (this->capacity > old_capacity)
+        this->clear(old_capacity);
 
-	if (this->size > this->capacity)
-		this->size = this->capacity;
+    if (this->size > this->capacity)
+        this->size = this->capacity;
 
-	return true;
+    return true;
 }
 
-// maintains size but clears memory
+/**
+ * Clear bytes 'index' to this->capacity
+ *
+ * This method reduces the size of the buffer but not the capacity.
+ */
 void Buffer::clear(uint32_t index) {
     if (index < this->capacity)
         std::memset(&this->raw[index], 0, this->capacity - index);
@@ -64,36 +69,59 @@ void Buffer::clear(uint32_t index) {
     this->size = (this->size < index) ? this->size : index;
 }
 
-// reduces size (still sticks to blocks) - might not change capacity
+/**
+ * Clear 'length' bytes starting at 'index'
+ *
+ * This function does not reduce the size unless the sum of 'index' and
+ * 'length' is equal to this->capacity. This method does not reduce the
+ * capacity of the buffer.
+ */
+void Buffer::clear(uint32_t index, uint32_t length) {
+    if (this->capacity - index - length == 0) {
+        this->clear(index);
+        return;
+    }
+
+    if (index < this->capacity)
+        std::memset(&this->raw[index], 0, this->capacity - index);
+
+    this->size = (this->size < index) ? this->size : index;
+}
+
+/**
+ * Remove the first 'length' bytes from the buffer
+ *
+ * This method reduces the size and may reduce the capacity
+ */
 void Buffer::erase(uint32_t length) {
-  if (length < 1)
-    return;
+    if (length < 1)
+        return;
 
-  this->size -= length;
-  this->capacity = this->getBlockCapacity(this->size);
+    this->size -= length;
+    this->capacity = this->getBlockCapacity(this->size);
 
-  uint8_t* data = new uint8_t[this->capacity];
-  std::memcpy(data, &this->raw[length], this->size);
-  delete this->raw;
-  this->raw = data;
-  clear(this->size);
+    uint8_t* data = new uint8_t[this->capacity];
+    std::memcpy(data, &this->raw[length], this->size);
+    delete this->raw;
+    this->raw = data;
+    clear(this->size);
 }
 
 void Buffer::erase(uint32_t index, uint32_t length) {
-  if (index < 1) {
-    this->erase(length);
-    return;
-  }
+    if (index < 1) {
+        this->erase(length);
+        return;
+    }
 
-  this->size -= length;
-  this->capacity = this->getBlockCapacity(this->size);
+    this->size -= length;
+    this->capacity = this->getBlockCapacity(this->size);
 
-  uint8_t* data = new uint8_t[this->capacity];
-  std::memcpy(data, this->raw, index);
-  std::memcpy(&data[index], &this->raw[index + length], this->size - index);
-  delete this->raw;
-  this->raw = data;
-  clear(this->size);
+    uint8_t* data = new uint8_t[this->capacity];
+    std::memcpy(data, this->raw, index);
+    std::memcpy(&data[index], &this->raw[index + length], this->size - index);
+    delete this->raw;
+    this->raw = data;
+    clear(this->size);
 }
 
 void Buffer::writeInt8(int8_t value) {
@@ -467,12 +495,12 @@ uint64_t Buffer::readUInt64LE(uint32_t index) const {
 }
 
 std::string Buffer::readString(uint32_t index, uint32_t length) const {
-  std::string str;
+    std::string str;
 
-  for (uint32_t i = index; i < index + length; i++)
-    str += readInt8(i);
+    for (uint32_t i = index; i < index + length; i++)
+        str += readInt8(i);
 
-  return str;
+    return str;
 }
 
 Buffer Buffer::readBuffer(uint32_t index, uint32_t length) const {

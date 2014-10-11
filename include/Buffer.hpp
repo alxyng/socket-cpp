@@ -1,65 +1,67 @@
-#ifndef BUFFER_H_
-#define BUFFER_H_
-
-// TODO: bounds check maybe
+#ifndef BUFFER_HPP_
+#define BUFFER_HPP_
 
 #include <cstdint>
 #include <cstring>
 #include <string>
 
+/**
+ * Used to store bytes in a malleable container
+ */
 class Buffer {
-  private:
+private:
     uint8_t* raw;
+    uint32_t capacity;
+    uint32_t size;
+
     static const uint32_t BLOCK_SIZE = 4096;
-    uint32_t size; // amount of data in buffer so far (different to capacity)
-    uint32_t capacity; // capacity (increases in BLOCK_SIZE bytes)
 
     void construct(uint32_t capacity);
     uint32_t getBlockCapacity(uint32_t capacity);
 
     template <typename T> void append(T data) {
-      if (this->size + sizeof (data) > this->capacity)
-        this->resize(this->size + sizeof (data));
+        if (this->size + sizeof (data) > this->capacity)
+            this->resize(this->size + sizeof (data));
 
-      std::memcpy(&raw[this->size], (uint8_t*)&data, sizeof (data));
-      this->size += sizeof (data);
+        std::memcpy(&raw[this->size], (uint8_t*)&data, sizeof (data));
+        this->size += sizeof (data);
     }
 
     template <typename T> void insert(T data, uint32_t index) {
-      if (index + sizeof (data) > this->capacity)
-        this->resize(index + sizeof (data));
+        if (index + sizeof (data) > this->capacity)
+            this->resize(index + sizeof (data));
 
-      std::memcpy(&raw[index], (uint8_t*)&data, sizeof (data));
-      this->size = index + sizeof (data);
+        std::memcpy(&raw[index], (uint8_t*)&data, sizeof (data));
+        this->size = index + sizeof (data);
     }
 
     template <typename T> T read(uint32_t index) const {
-      return *((T*)&raw[index]);
+        return *((T*)&raw[index]);
     }
 
     // TODO: check endianness at compile time rather than runtime
     static bool isMachineBigEndian() {
-      uint16_t i = 300;
-      if ((*(uint8_t*)&i) != 44)
-        return true;
+        uint16_t i = 300;
+        if ((*(uint8_t*)&i) != 44)
+            return true;
 
-      return false;
+        return false;
     };
 
     template <typename T> static void swapByteOrder(T* data) {
-      if (sizeof (T) < 2)
-        return;
+        if (sizeof (T) < 2)
+            return;
 
-      uint8_t* p = (uint8_t*)data;
+        uint8_t* p = (uint8_t*)data;
 
-      for (uint32_t i = 0; i < (sizeof (T) / 2); i++) {
-        uint8_t temp = p[sizeof (T) - i - 1];
-        std::memcpy(&p[sizeof (T) - i - 1], &p[i], 1);
-        std::memcpy(&p[i], &temp, 1);
-      }
+        for (uint32_t i = 0; i < (sizeof (T) / 2); i++) {
+            uint8_t temp = p[sizeof (T) - i - 1];
+            std::memcpy(&p[sizeof (T) - i - 1], &p[i], 1);
+            std::memcpy(&p[i], &temp, 1);
+        }
     }
 
-  public:
+public:
     Buffer(uint32_t size = BLOCK_SIZE);
     Buffer(const void* const data, uint32_t size);
     Buffer(const void* const data, uint32_t size, uint32_t index);
@@ -67,6 +69,7 @@ class Buffer {
 
     bool resize(uint32_t size);
     void clear(uint32_t index = 0);
+    void clear(uint32_t index, uint32_t length);
     void erase(uint32_t length);
     void erase(uint32_t index, uint32_t length);
 
@@ -142,11 +145,11 @@ class Buffer {
     Buffer readBuffer(uint32_t index, uint32_t length) const;
 
     uint32_t getSize() const {
-      return this->size;
+        return this->size;
     };
 
     uint32_t getCapacity() const {
-      return this->capacity;
+        return this->capacity;
     };
 };
 
