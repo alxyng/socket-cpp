@@ -4,74 +4,64 @@
 #include <cstring>
 #include <string>
 
-#include <iostream> // debug
-
 Buffer::Buffer(uint32_t capacity) { // size in bytes
-  this->construct(capacity);
+    this->construct(capacity);
 }
 
 Buffer::Buffer(const void* const data, uint32_t size) {
-  this->construct(size);
-  this->writeBytes(data, size);
+    this->construct(size);
+    this->writeBytes(data, size);
 }
 
 Buffer::Buffer(const void* const data, uint32_t size, uint32_t index) {
-  this->construct(size);
-  this->writeBytes(data, size, index);
+    this->construct(size);
+    this->writeBytes(data, size, index);
 }
 
 Buffer::~Buffer() {
-  delete this->raw;
+    free(this->raw);
 }
 
 void Buffer::construct(uint32_t capacity) {
-  this->raw = NULL;
-  this->capacity = 0;
-  this->size = 0;
-
-  this->resize(capacity);
-  this->clear();
+    this->raw = (uint8_t*)std::calloc(sizeof (uint8_t), capacity);
+    this->capacity = capacity;
+    this->size = 0;
 }
 
 uint32_t Buffer::getBlockCapacity(uint32_t capacity) {
-  return ((uint32_t)((capacity + BLOCK_SIZE - 1.0) / BLOCK_SIZE)) * BLOCK_SIZE;
+    return ((uint32_t)((capacity + BLOCK_SIZE - 1.0) / BLOCK_SIZE)) * BLOCK_SIZE;
 }
 
-// needs to preserve data and add cleared data (works in blocks)
-void Buffer::resize(uint32_t capacity) {
-  capacity = this->getBlockCapacity(capacity);
+bool Buffer::resize(uint32_t capacity) {
+    capacity = this->getBlockCapacity(capacity);
 
-  if (capacity == this->capacity)
-    return;
+    if (capacity == this->capacity)
+		return true;
 
-  if (this->capacity == 0 || this->size == 0) {
-    delete this->raw;
-    this->raw = new uint8_t[capacity];
-    this->capacity = capacity;
-    return;
-  }
+    uint32_t old_capacity = this->capacity;
 
-  if (this->size > capacity)
-    this->size = capacity;
+    uint8_t* raw = (uint8_t*)std::realloc(this->raw, capacity);
+	if (raw == NULL)
+		return false;
 
-  uint8_t* data = new uint8_t[capacity];
-  std::memcpy(data, this->raw, this->size);
-  delete this->raw;
-  this->raw = data;
+	this->raw = raw;
+	this->capacity = capacity;
 
-  uint32_t oldCapacity = this->capacity;
-  this->capacity = capacity;
+	if (this->capacity > old_capacity)
+		this->clear(old_capacity);
 
-  if (oldCapacity < this->capacity)
-    clear(oldCapacity);
+	if (this->size > this->capacity)
+		this->size = this->capacity;
+
+	return true;
 }
 
 // maintains size but clears memory
 void Buffer::clear(uint32_t index) {
-  if (index < this->capacity)
-    std::memset(&this->raw[index], 0, this->capacity - index);
+    if (index < this->capacity)
+        std::memset(&this->raw[index], 0, this->capacity - index);
 
-  this->size = (this->size < index) ? this->size : index;
+    this->size = (this->size < index) ? this->size : index;
 }
 
 // reduces size (still sticks to blocks) - might not change capacity

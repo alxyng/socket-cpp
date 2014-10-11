@@ -65,7 +65,7 @@ class Buffer {
     Buffer(const void* const data, uint32_t size, uint32_t index);
     ~Buffer();
 
-    void resize(uint32_t size);
+    bool resize(uint32_t size);
     void clear(uint32_t index = 0);
     void erase(uint32_t length);
     void erase(uint32_t index, uint32_t length);
