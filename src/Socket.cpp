@@ -76,6 +76,8 @@ void Socket::connect(Address addr) {
 		this->state = STATE::CONNECTED;
 	}
 
+	this->addr = &addr;
+
 	char s[INET6_ADDRSTRLEN];
 	inet_ntop(p->ai_family, this->getInternetAddress((struct sockaddr *)p->ai_addr), s, sizeof s);
 	//printf("client: connecting to %s\n", s);

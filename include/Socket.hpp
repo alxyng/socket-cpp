@@ -18,6 +18,13 @@ private:
 
 	int fd;
 
+	Address* addr;
+
+	static const int RECEIVE_SIZE = 4096;
+
+	void* getInternetAddress(struct sockaddr *sa);
+
+public:
 	enum TYPE {
 		TCP,
 		UDP,
@@ -35,11 +42,6 @@ private:
 		BOTH
 	};
 
-	static const int RECEIVE_SIZE = 4096;
-
-	void* getInternetAddress(struct sockaddr *sa);
-
-public:
 	Socket(int type = TYPE::TCP);
 	~Socket();
 
@@ -49,7 +51,7 @@ public:
 	// Server
 	void bind(Address addr);
 	void listen(int n);
-	void accept();
+	Socket accept();
 
 	bool close(const int how = CLOSE::BOTH);
 
